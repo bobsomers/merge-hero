@@ -4,6 +4,7 @@ local constants = {}
 
 constants.TITLE = "Merge Hero"
 constants.AUTHOR = "Bob Somers"
+constants.IDENTITY = "MergeHero"
 
 constants.DEBUG_MODE = true
 
