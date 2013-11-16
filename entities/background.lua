@@ -6,12 +6,12 @@ local Background = Class {
     particles = false,
 
     SPEW_TIME = 0.05,
-    time = 0,
     offTime = 0,
+
     bgColor = {
         r = 35,
         g = 35,
-        b = 35
+        b = 45
     },
 
     init = function(self)
@@ -29,9 +29,7 @@ local Background = Class {
 }
 
 function Background:update(dt)
-    self.time = self.time + dt
-
-    if self.time > self.offTime then
+    if love.timer.getMicroTime() > self.offTime then
         self.particles:stop()
     end
 
@@ -78,7 +76,7 @@ function Background:beat(songTime)
     else
         self.bgColor.r = 35
         self.bgColor.g = 35
-        self.bgColor.b = 35
+        self.bgColor.b = 45
     end
 
     -- New particle color.
@@ -93,7 +91,7 @@ function Background:beat(songTime)
 
     -- Do the thing.
     self.particles:start()
-    self.offTime = self.time + self.SPEW_TIME
+    self.offTime = love.timer.getMicroTime() + self.SPEW_TIME
 end
 
 function Background:halfBeat(songTime)
@@ -108,7 +106,7 @@ function Background:halfBeat(songTime)
 
     -- Do the thing.
     self.particles:start()
-    self.offTime = self.time + self.SPEW_TIME
+    self.offTime = love.timer.getMicroTime() + self.SPEW_TIME
 end
 
 return Background

@@ -1,4 +1,6 @@
 local Class = require "hump.class"
+local Vector = require "hump.vector"
+local Timer = require "hump.timer"
 local constants = require "constants"
 
 local Repo = Class {
@@ -16,7 +18,16 @@ local Repo = Class {
         l = false
     },
 
+    wubWubFactor = {
+        value = 1.0
+    },
+    WUB_WUB_TIME = 0.1,
+    WUB_WUB_MAGNITUDE = 1.5,
+
     image = love.graphics.newImage("images/particle.png"),
+
+    SPEW_TIME = 0.05,
+    offTime = 0,
 
     init = function(self)
         local particleBuffer = 500
@@ -78,6 +89,23 @@ local Repo = Class {
 }
 
 function Repo:update(dt)
+    if love.timer.getMicroTime() > self.offTime then
+        self.particles.h:setSpread(0)
+        self.particles.j:setSpread(0)
+        self.particles.k:setSpread(0)
+        self.particles.l:setSpread(0)
+
+        self.particles.h:setRadialAcceleration(0)
+        self.particles.j:setRadialAcceleration(0)
+        self.particles.k:setRadialAcceleration(0)
+        self.particles.l:setRadialAcceleration(0)
+
+        self.particles.h:setTangentialAcceleration(0)
+        self.particles.j:setTangentialAcceleration(0)
+        self.particles.k:setTangentialAcceleration(0)
+        self.particles.l:setTangentialAcceleration(0)
+    end
+
     self.particles.h:update(dt)
     self.particles.j:update(dt)
     self.particles.k:update(dt)
@@ -87,10 +115,9 @@ end
 function Repo:draw()
     local y = (constants.SCREEN.y - 100)
     local scaledY = y * 2
-    local radius = 50
-    local stencilRadius = 42
+    local radius = 50 * self.wubWubFactor.value
+    local stencilRadius = 42 * self.wubWubFactor.value
     local spacing = (constants.SCREEN.x - (8 * radius)) / 5
-
 
     local x = {
         h = spacing + radius,
@@ -98,6 +125,15 @@ function Repo:draw()
         k = 3 * spacing + 5 * radius,
         l = 4 * spacing + 7 * radius
     }
+
+    love.graphics.setColor(240, 25, 25)
+    love.graphics.line(x.h, 0, x.h, constants.SCREEN.y)
+    love.graphics.setColor(25, 240, 25)
+    love.graphics.line(x.j, 0, x.j, constants.SCREEN.y)
+    love.graphics.setColor(25, 25, 240)
+    love.graphics.line(x.k, 0, x.k, constants.SCREEN.y)
+    love.graphics.setColor(240, 240, 25)
+    love.graphics.line(x.l, 0, x.l, constants.SCREEN.y)
 
     local color_mode = love.graphics.getColorMode()
     local blend_mode = love.graphics.getBlendMode()
@@ -149,6 +185,34 @@ function Repo:draw()
     love.graphics.setStencil()
 
     love.graphics.pop()
+end
+
+function Repo:beat(songTime)
+    local spread = math.pi / 2
+    local radialAccelMin = 100
+    local radialAccelMax = 300
+    local tangentialAccelMin = -200
+    local tangentialAccelMax = 200
+
+    self.particles.h:setSpread(spread)
+    self.particles.j:setSpread(spread)
+    self.particles.k:setSpread(spread)
+    self.particles.l:setSpread(spread)
+
+    self.particles.h:setRadialAcceleration(radialAccelMin, radialAccelMax)
+    self.particles.j:setRadialAcceleration(radialAccelMin, radialAccelMax)
+    self.particles.k:setRadialAcceleration(radialAccelMin, radialAccelMax)
+    self.particles.l:setRadialAcceleration(radialAccelMin, radialAccelMax)
+
+    self.particles.h:setTangentialAcceleration(tangentialAccelMin, tangentialAccelMax)
+    self.particles.j:setTangentialAcceleration(tangentialAccelMin, tangentialAccelMax)
+    self.particles.k:setTangentialAcceleration(tangentialAccelMin, tangentialAccelMax)
+    self.particles.l:setTangentialAcceleration(tangentialAccelMin, tangentialAccelMax)
+
+    self.offTime = love.timer.getMicroTime() + self.SPEW_TIME
+
+    self.wubWubFactor.value = self.WUB_WUB_MAGNITUDE
+    Timer.tween(self.WUB_WUB_TIME, self.wubWubFactor, {value = 1.0}, 'bounce')
 end
 
 return Repo

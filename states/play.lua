@@ -39,6 +39,7 @@ function play:update(dt)
     local songTime = love.timer.getMicroTime() - self.songStartTime
     if songTime >= self.beats[self.nextBeat] then
         self.background:beat(songTime)
+        self.repo:beat(songTime)
 
         if self.nextBeat < self.lastBeat then
             self.nextBeat = self.nextBeat + 1
