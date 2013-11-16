@@ -9,20 +9,20 @@ end
 
 function recbeats:enter(previous)
     self.countdown = 10.0
-    self.songtime = 0.0
     self.beats = {}
     self.nextbeat = 1
     self.done = false
+
+    self.songStartTime = 0
 end
 
 function recbeats:update(dt)
     if self.countdown > 0 then
         self.countdown = self.countdown - dt
         if self.countdown <= 0 then
+            self.songStartTime = love.timer.getMicroTime()
             love.audio.play(self.soundtrack)
         end
-    else
-        self.songtime = self.songtime + dt
     end
 end
 
@@ -32,13 +32,13 @@ function recbeats:draw()
     elseif self.countdown > 0 then
         love.graphics.print(string.format("Recording beat track in %.2f...", self.countdown), 50, 100)
     else
-        love.graphics.print(string.format("Recording beat track at %.2f...", self.songtime), 50, 100)
+        love.graphics.print(string.format("Recording beat track at %.2f...", love.timer.getMicroTime() - self.songStartTime), 50, 100)
     end
 end
 
 function recbeats:keypressed(key)
     if key == " " then
-        self.beats[self.nextbeat] = self.songtime
+        self.beats[self.nextbeat] = love.timer.getMicroTime() - self.songStartTime
         self.nextbeat = self.nextbeat + 1
         print("BEAT")
     elseif key == "escape" then
