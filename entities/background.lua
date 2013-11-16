@@ -23,6 +23,8 @@ local Background = Class {
         self.particles:setSizeVariation(1.0)
         self.particles:setLifetime(-1)
         self.particles:setParticleLife(2)
+        self.particles:setRadialAcceleration(-200, 200)
+        self.particles:setTangentialAcceleration(-400, 400)
     end
 }
 
