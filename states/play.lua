@@ -1,6 +1,7 @@
 local Gamestate = require "hump.gamestate"
 local Repo = require "entities.repo"
 local Background = require "entities.background"
+local Insultomatic = require "entities.insultomatic"
 local beats = require "beats"
 
 local play = {}
@@ -14,6 +15,7 @@ function play:init()
 
     self.background = Background()
     self.repo = Repo()
+    self.insults = Insultomatic()
 end
 
 function play:enter(previous)
@@ -40,6 +42,7 @@ function play:update(dt)
     if songTime >= self.beats[self.nextBeat] then
         self.background:beat(songTime)
         self.repo:beat(songTime)
+        self.insults:beat(songTime)
 
         if self.nextBeat < self.lastBeat then
             self.nextBeat = self.nextBeat + 1
@@ -68,11 +71,13 @@ function play:update(dt)
 
     self.background:update(dt)
     self.repo:update(dt)
+    self.insults:update(dt)
 end
 
 function play:draw()
     self.background:draw()
     self.repo:draw()
+    self.insults:draw()
 end
 
 function play:keypressed(key)
