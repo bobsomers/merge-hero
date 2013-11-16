@@ -52,7 +52,24 @@ function Background:draw()
     love.graphics.setBlendMode(blend_mode)
 end
 
-function Background:beat(intense)
+function Background:beat(songTime)
+    local intense = false
+
+    -- Song programming controlling particles completely.
+    if songTime < 17 or
+       (songTime > 34.5 and songTime < 52) or
+       (songTime > 139.5 and songTime < 144) or
+       (songTime > 161 and songTime < 165.5) then
+        return
+    end
+
+    -- Song programming controlling intensity.
+    if (songTime > 52 and  songTime < 87) or
+       (songTime > 122 and songTime < 139.5) or
+       (songTime > 165.5 and songTime < 200.5) then
+        intense = true
+    end
+
     if intense then
         -- Change background color.
         self.bgColor.r = math.random() * 50
@@ -79,7 +96,12 @@ function Background:beat(intense)
     self.offTime = self.time + self.SPEW_TIME
 end
 
-function Background:halfBeat()
+function Background:halfBeat(songTime)
+    -- Song programming.
+    if songTime < 165.8 or songTime > 200.2 then
+       return
+    end
+
     -- New particle position.
     self.particles:setPosition(math.random() * constants.SCREEN.x,
                                math.random() * (constants.SCREEN.y - 150))

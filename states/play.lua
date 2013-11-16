@@ -38,11 +38,7 @@ function play:update(dt)
 
     local songTime = love.timer.getMicroTime() - self.songStartTime
     if songTime >= self.beats[self.nextBeat] then
-        if songTime > 17 then
-            self.background:beat(true)
-        else
-            self.background:beat(false)
-        end
+        self.background:beat(songTime)
 
         if self.nextBeat < self.lastBeat then
             self.nextBeat = self.nextBeat + 1
@@ -52,7 +48,7 @@ function play:update(dt)
     if songTime >= self.eighths[self.nextEighth] then
         local which = ((self.nextEighth - 1) % 2) + 1
 
-        -- TODO
+        self.background:halfBeat(songTime)
 
         if self.nextEighth < self.lastEighth then
             self.nextEighth = self.nextEighth + 1
