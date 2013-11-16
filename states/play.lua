@@ -1,17 +1,20 @@
 local Gamestate = require "hump.gamestate"
+local Repo = require "entities.repo"
 
 local play = {}
 
 function play:init()
     love.graphics.setBackgroundColor(20, 20, 45)
+    
+    self.repo = Repo()
 end
 
 function play:update(dt)
-
+    self.repo:update(dt)
 end
 
 function play:draw()
-    love.graphics.print("Hello, world!", 50, 100)
+    self.repo:draw()
 end
 
 return play

@@ -9,7 +9,7 @@ function love.load()
     math.randomseed(os.time())
 
     Gamestate.registerEvents()
-    Gamestate.switch(playbeats)
+    Gamestate.switch(play)
 end
 
 function love.update(dt)
