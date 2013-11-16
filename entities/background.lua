@@ -56,6 +56,10 @@ function Background:beat(intense)
         self.bgColor.r = math.random() * 50
         self.bgColor.g = math.random() * 50
         self.bgColor.b = math.random() * 50
+    else
+        self.bgColor.r = 35
+        self.bgColor.g = 35
+        self.bgColor.b = 35
     end
 
     -- New particle color.
