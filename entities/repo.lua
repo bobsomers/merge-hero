@@ -66,7 +66,9 @@ local Repo = Class {
     RADIUS = 50,
     STENCIL_RADIUS = 42,
 
-    init = function(self)
+    init = function(self, scoreboard)
+        self.scoreboard = scoreboard
+
         self.targetY = constants.SCREEN.y - 100
         self.scaledTargetY = self.targetY * 2
 
@@ -214,8 +216,12 @@ function Repo:draw(songTime)
             if y < -50 then
                 break
             elseif y > self.targetY and self.active[lane] then
-                self:ping(lane)
                 self.nextCommit[lane] = self.nextCommit[lane] + 1
+
+                if y < self.targetY + 10 then
+                    self:ping(lane)
+                    self.scoreboard:add(10)
+                end
             else
                 local color = self:laneColor(lane)
                 love.graphics.setColor(color.r, color.g, color.b)
@@ -242,8 +248,12 @@ function Repo:draw(songTime)
             if y < -50 then
                 break
             elseif y > self.targetY and self.active[lane] then
-                self:ping(lane)
                 self.nextCreep[lane] = self.nextCreep[lane] + 1
+
+                if y <= self.targetY + 10 then
+                    self:ping(lane)
+                    self.scoreboard:remove(50)
+                end
             else
                 local color = self:laneColor(lane)
                 love.graphics.setColor(255, 255, 255)
