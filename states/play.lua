@@ -16,6 +16,8 @@ function play:init()
     self.background = Background()
     self.repo = Repo()
     self.insults = Insultomatic()
+
+    self.sourceKey = false
 end
 
 function play:enter(previous)
@@ -28,6 +30,10 @@ function play:enter(previous)
     self.lastSixteenth = #self.sixteenths
     
     self.songStartTime = 0
+
+    self.sourceKey = false
+
+    self.repo:activate("h", true)
 end
 
 function play:update(dt)
@@ -81,12 +87,26 @@ function play:draw()
 end
 
 function play:keypressed(key)
-    if key == "a" then
-        self.background:beat(false)
-    elseif key == "s" then
-        self.background:beat(true)
-    elseif key == "d" then
-        self.background:halfBeat()
+    if key == "h" or key == "j" or key == "k" or key == "l" then
+        if not self.sourceKey then
+            self.sourceKey = key
+        else
+            if self.repo.active[self.sourceKey] then
+                if self.repo.active[key] then
+                    self.repo:merge(self.sourceKey, key)
+                else
+                    self.repo:branch(self.sourceKey, key)
+                end
+            end
+        end
+    end
+end
+
+function play:keyreleased(key)
+    if key == "h" or key == "j" or key == "k" or key == "l" then
+        if self.sourceKey == key then
+            self.sourceKey = false
+        end
     end
 end
 
