@@ -2,8 +2,11 @@ local Class = require "hump.class"
 local Vector = require "hump.vector"
 local Timer = require "hump.timer"
 local constants = require "constants"
+local tracks = require "tracks"
 
 local Repo = Class {
+    font = love.graphics.newFont("fonts/pricedown.ttf", 48),
+
     active = {
         h = true,
         j = false,
@@ -23,6 +26,15 @@ local Repo = Class {
     },
     WUB_WUB_TIME = 0.1,
     WUB_WUB_MAGNITUDE = 1.5,
+
+    TARGET_SPEED = 200,
+    tracks = tracks,
+    nextTarget = {
+        h = 1,
+        j = 1,
+        k = 1,
+        l = 1
+    },
 
     image = love.graphics.newImage("images/particle.png"),
 
@@ -128,7 +140,7 @@ function Repo:update(dt)
     self.particles.l:update(dt)
 end
 
-function Repo:draw()
+function Repo:draw(songTime)
     local radius = self.RADIUS * self.wubWubFactor.value
     local stencilRadius = self.STENCIL_RADIUS * self.wubWubFactor.value
     local spacing = self:calcSpacing(radius)
@@ -140,6 +152,7 @@ function Repo:draw()
         l = self:targetX("l", spacing, radius)
     }
 
+    -- Lanes.
     love.graphics.setColor(240, 25, 25)
     love.graphics.line(x.h, 0, x.h, constants.SCREEN.y)
     love.graphics.setColor(25, 240, 25)
@@ -149,6 +162,34 @@ function Repo:draw()
     love.graphics.setColor(240, 240, 25)
     love.graphics.line(x.l, 0, x.l, constants.SCREEN.y)
 
+    -- Lane targets.
+    local i = {
+        h = self.nextTarget.h,
+        j = self.nextTarget.j,
+        k = self.nextTarget.k,
+        l = self.nextTarget.l
+    }
+    while true do
+        if not self.tracks.j[i.j] then
+            break
+        end
+
+        local deltaT = self.tracks.j[i.j] - songTime
+        local distance = self.TARGET_SPEED * deltaT
+
+        local y = self.targetY - distance
+
+        if y < -50 then
+            break
+        end
+
+        love.graphics.setColor(0, 255, 0)
+        love.graphics.circle("fill", x.j, y, 15, 20)
+
+        i.j = i.j + 1
+    end
+
+    -- Lane particles.
     local color_mode = love.graphics.getColorMode()
     local blend_mode = love.graphics.getBlendMode()
     love.graphics.setColorMode("modulate")
@@ -169,6 +210,7 @@ function Repo:draw()
     love.graphics.setColorMode(color_mode)
     love.graphics.setBlendMode(blend_mode)
 
+    -- Lane goals.
     love.graphics.push()
     love.graphics.scale(1.0, 0.5)
 
@@ -199,6 +241,29 @@ function Repo:draw()
     love.graphics.setStencil()
 
     love.graphics.pop()
+
+    -- Lane leters.
+    love.graphics.setFont(self.font)
+
+    love.graphics.setColor(0, 0, 0)
+    love.graphics.print("h", x.h - 11, self.targetY + 23)
+    love.graphics.setColor(255, 255, 255)
+    love.graphics.print("h", x.h - 14, self.targetY + 20)
+
+    love.graphics.setColor(0, 0, 0)
+    love.graphics.print("j", x.j - 10, self.targetY + 23)
+    love.graphics.setColor(255, 255, 255)
+    love.graphics.print("j", x.j - 13, self.targetY + 20)
+
+    love.graphics.setColor(0, 0, 0)
+    love.graphics.print("k", x.k - 8, self.targetY + 23)
+    love.graphics.setColor(255, 255, 255)
+    love.graphics.print("k", x.k - 11, self.targetY + 20)
+
+    love.graphics.setColor(0, 0, 0)
+    love.graphics.print("l", x.l - 5, self.targetY + 23)
+    love.graphics.setColor(255, 255, 255)
+    love.graphics.print("l", x.l - 8, self.targetY + 20)
 end
 
 function Repo:beat(songTime)

@@ -81,9 +81,11 @@ function play:update(dt)
 end
 
 function play:draw()
+    local songTime = love.timer.getMicroTime() - self.songStartTime
+
     self.background:draw()
-    self.repo:draw()
-    self.insults:draw()
+    self.repo:draw(songTime)
+    --self.insults:draw()
 end
 
 function play:keypressed(key)
