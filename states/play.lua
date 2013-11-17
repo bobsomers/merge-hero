@@ -18,6 +18,8 @@ function play:init()
     self.insults = Insultomatic()
 
     self.sourceKey = false
+
+    self.lastSongTime = 0
 end
 
 function play:enter(previous)
@@ -43,6 +45,7 @@ function play:update(dt)
     end
 
     local songTime = love.timer.getMicroTime() - self.songStartTime
+
     if songTime >= self.beats[self.nextBeat] then
         self.background:beat(songTime)
         self.repo:beat(songTime)
@@ -63,8 +66,10 @@ function play:update(dt)
         end
     end
 
+    self.lastSongTime = songTime
+
     self.background:update(dt)
-    self.repo:update(dt)
+    self.repo:update(dt, songTime)
     self.insults:update(dt)
 end
 
@@ -77,6 +82,10 @@ function play:draw()
 end
 
 function play:keypressed(key)
+    if self.lastSongTime < 43.623923 and (key == "h" or key == "l") then
+        return
+    end
+
     if key == "h" or key == "j" or key == "k" or key == "l" then
         if not self.sourceKey then
             self.sourceKey = key
@@ -93,6 +102,10 @@ function play:keypressed(key)
 end
 
 function play:keyreleased(key)
+    if self.lastSongTime < 43.623923 and (key == "h" or key == "l") then
+        return
+    end
+
     if key == "h" or key == "j" or key == "k" or key == "l" then
         if self.sourceKey == key then
             self.sourceKey = false

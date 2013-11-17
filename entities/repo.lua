@@ -8,7 +8,7 @@ local Repo = Class {
     font = love.graphics.newFont("fonts/pricedown.ttf", 48),
 
     active = {
-        h = true,
+        h = false,
         j = false,
         k = false,
         l = false
@@ -35,6 +35,12 @@ local Repo = Class {
         k = 1,
         l = 1
     },
+
+    introducedOutsideLanes = false,
+    introducedOutsideGoals = false,
+    drawOutsideLanes = false,
+    drawOutsideGoals = false,
+    outsideLanePos = Vector(200, 0),
 
     image = love.graphics.newImage("images/particle.png"),
 
@@ -121,7 +127,7 @@ local Repo = Class {
     end
 }
 
-function Repo:update(dt)
+function Repo:update(dt, songTime)
     local microTime = love.timer.getMicroTime()
     for _, lane in ipairs({"h", "j", "k", "l"}) do
         if microTime > self.offTime[lane] then
@@ -135,6 +141,21 @@ function Repo:update(dt)
     self.particles.j:update(dt)
     self.particles.k:update(dt)
     self.particles.l:update(dt)
+
+    if not self.introducedOutsideLanes and songTime > 34.872747 then
+        Timer.tween(6, self.outsideLanePos, {y = constants.SCREEN.y}, "linear", function()
+            self.drawOutsideLanes = true
+        end)
+
+        Timer.add(6, function()
+            Timer.tween(2, self.outsideLanePos, {x = 0}, "bounce", function()
+                self.drawOutsideGoals = true
+            end)
+            self.introducedOutsideGoals = true
+        end)
+
+        self.introducedOutsideLanes = true
+    end
 end
 
 function Repo:draw(songTime)
@@ -150,14 +171,21 @@ function Repo:draw(songTime)
     }
 
     -- Lanes.
-    love.graphics.setColor(240, 25, 25)
-    love.graphics.line(x.h, 0, x.h, constants.SCREEN.y)
+    if self.drawOutsideLanes then
+        love.graphics.setColor(240, 25, 25)
+        love.graphics.line(x.h, 0, x.h, constants.SCREEN.y)
+        love.graphics.setColor(240, 240, 25)
+        love.graphics.line(x.l, 0, x.l, constants.SCREEN.y)
+    elseif self.introducedOutsideLanes then
+        love.graphics.setColor(240, 25, 25)
+        love.graphics.line(x.h, 0, x.h, self.outsideLanePos.y)
+        love.graphics.setColor(240, 240, 25)
+        love.graphics.line(x.l, 0, x.l, self.outsideLanePos.y)
+    end
     love.graphics.setColor(25, 240, 25)
     love.graphics.line(x.j, 0, x.j, constants.SCREEN.y)
     love.graphics.setColor(25, 25, 240)
     love.graphics.line(x.k, 0, x.k, constants.SCREEN.y)
-    love.graphics.setColor(240, 240, 25)
-    love.graphics.line(x.l, 0, x.l, constants.SCREEN.y)
 
     -- Lane targets.
     for _, lane in ipairs({"h", "j", "k", "l"}) do
@@ -212,11 +240,31 @@ function Repo:draw(songTime)
     love.graphics.push()
     love.graphics.scale(1.0, 0.5)
 
-    love.graphics.setColor(240, 25, 25)
-    love.graphics.setInvertedStencil(function()
-        love.graphics.circle("fill", x.h, self.scaledTargetY, stencilRadius, 30)
-    end)
-    love.graphics.circle("fill", x.h, self.scaledTargetY, radius, 30)
+    if self.drawOutsideGoals then
+        love.graphics.setColor(240, 25, 25)
+        love.graphics.setInvertedStencil(function()
+            love.graphics.circle("fill", x.h, self.scaledTargetY, stencilRadius, 30)
+        end)
+        love.graphics.circle("fill", x.h, self.scaledTargetY, radius, 30)
+
+        love.graphics.setColor(240, 240, 25)
+        love.graphics.setInvertedStencil(function()
+            love.graphics.circle("fill", x.l, self.scaledTargetY, stencilRadius, 30)
+        end)
+        love.graphics.circle("fill", x.l, self.scaledTargetY, radius, 30)
+    elseif self.introducedOutsideGoals then
+        love.graphics.setColor(240, 25, 25)
+        love.graphics.setInvertedStencil(function()
+            love.graphics.circle("fill", x.h - self.outsideLanePos.x, self.scaledTargetY, stencilRadius, 30)
+        end)
+        love.graphics.circle("fill", x.h - self.outsideLanePos.x, self.scaledTargetY, radius, 30)
+
+        love.graphics.setColor(240, 240, 25)
+        love.graphics.setInvertedStencil(function()
+            love.graphics.circle("fill", x.l + self.outsideLanePos.x, self.scaledTargetY, stencilRadius, 30)
+        end)
+        love.graphics.circle("fill", x.l + self.outsideLanePos.x, self.scaledTargetY, radius, 30)
+    end
 
     love.graphics.setColor(25, 240, 25)
     love.graphics.setInvertedStencil(function()
@@ -230,12 +278,6 @@ function Repo:draw(songTime)
     end)
     love.graphics.circle("fill", x.k, self.scaledTargetY, radius, 30)
 
-    love.graphics.setColor(240, 240, 25)
-    love.graphics.setInvertedStencil(function()
-        love.graphics.circle("fill", x.l, self.scaledTargetY, stencilRadius, 30)
-    end)
-    love.graphics.circle("fill", x.l, self.scaledTargetY, radius, 30)
-
     love.graphics.setStencil()
 
     love.graphics.pop()
@@ -243,10 +285,27 @@ function Repo:draw(songTime)
     -- Lane leters.
     love.graphics.setFont(self.font)
 
-    love.graphics.setColor(0, 0, 0)
-    love.graphics.print("h", x.h - 11, self.targetY + 23)
-    love.graphics.setColor(255, 255, 255)
-    love.graphics.print("h", x.h - 14, self.targetY + 20)
+    if self.drawOutsideGoals then
+        love.graphics.setColor(0, 0, 0)
+        love.graphics.print("h", x.h - 11, self.targetY + 23)
+        love.graphics.setColor(255, 255, 255)
+        love.graphics.print("h", x.h - 14, self.targetY + 20)
+
+        love.graphics.setColor(0, 0, 0)
+        love.graphics.print("l", x.l - 5, self.targetY + 23)
+        love.graphics.setColor(255, 255, 255)
+        love.graphics.print("l", x.l - 8, self.targetY + 20)
+    elseif self.introducedOutsideGoals then
+        love.graphics.setColor(0, 0, 0)
+        love.graphics.print("h", x.h - 11 - self.outsideLanePos.x, self.targetY + 23)
+        love.graphics.setColor(255, 255, 255)
+        love.graphics.print("h", x.h - 14 - self.outsideLanePos.x, self.targetY + 20)
+
+        love.graphics.setColor(0, 0, 0)
+        love.graphics.print("l", x.l - 5 + self.outsideLanePos.x, self.targetY + 23)
+        love.graphics.setColor(255, 255, 255)
+        love.graphics.print("l", x.l - 8 + self.outsideLanePos.x, self.targetY + 20)
+    end
 
     love.graphics.setColor(0, 0, 0)
     love.graphics.print("j", x.j - 10, self.targetY + 23)
@@ -257,11 +316,6 @@ function Repo:draw(songTime)
     love.graphics.print("k", x.k - 8, self.targetY + 23)
     love.graphics.setColor(255, 255, 255)
     love.graphics.print("k", x.k - 11, self.targetY + 20)
-
-    love.graphics.setColor(0, 0, 0)
-    love.graphics.print("l", x.l - 5, self.targetY + 23)
-    love.graphics.setColor(255, 255, 255)
-    love.graphics.print("l", x.l - 8, self.targetY + 20)
 end
 
 function Repo:beat(songTime)
