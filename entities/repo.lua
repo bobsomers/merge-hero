@@ -143,7 +143,7 @@ function Repo:update(dt, songTime)
     self.particles.l:update(dt)
 
     if not self.introducedOutsideLanes and songTime > 34.872747 then
-        Timer.tween(6, self.outsideLanePos, {y = constants.SCREEN.y}, "linear", function()
+        Timer.tween(8, self.outsideLanePos, {y = constants.SCREEN.y}, "linear", function()
             self.drawOutsideLanes = true
         end)
 
