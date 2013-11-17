@@ -7,7 +7,7 @@ local beats = require "beats"
 local play = {}
 
 function play:init()
-    self.soundtrack = love.audio.newSource("level1.mp3", "static")
+    self.soundtrack = love.audio.newSource("level1.mp3", "stream")
     self.beats = beats
     self.nextBeat = 1
     self.lastBeat = #self.beats
