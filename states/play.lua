@@ -2,6 +2,7 @@ local Gamestate = require "hump.gamestate"
 local Repo = require "entities.repo"
 local Background = require "entities.background"
 local Scoreboard = require "entities.scoreboard"
+local HelpText = require "entities.helptext"
 local beats = require "data.beats"
 
 local play = {}
@@ -16,6 +17,7 @@ function play:init()
     self.background = Background()
     self.scoreboard = Scoreboard()
     self.repo = Repo(self.scoreboard)
+    self.helptext = HelpText()
 
     self.sourceKey = false
 
@@ -71,12 +73,14 @@ function play:update(dt)
     self.background:update(dt)
     self.repo:update(dt, songTime)
     self.scoreboard:update(dt)
+    self.helptext:update(dt)
 end
 
 function play:draw()
     local songTime = love.timer.getMicroTime() - self.songStartTime
 
     self.background:draw()
+    self.helptext:draw(songTime)
     self.repo:draw(songTime)
     self.scoreboard:draw()
 end
