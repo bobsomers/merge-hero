@@ -39,7 +39,12 @@ local Repo = Class {
     image = love.graphics.newImage("images/particle.png"),
 
     SPEW_TIME = 0.05,
-    offTime = 0,
+    offTime = {
+        h = 0,
+        j = 0,
+        k = 0,
+        l = 0
+    },
 
     BRANCH_MERGE_TIME = 0.25,
 
@@ -117,21 +122,13 @@ local Repo = Class {
 }
 
 function Repo:update(dt)
-    if love.timer.getMicroTime() > self.offTime then
-        self.particles.h:setSpread(0)
-        self.particles.j:setSpread(0)
-        self.particles.k:setSpread(0)
-        self.particles.l:setSpread(0)
-
-        self.particles.h:setRadialAcceleration(0)
-        self.particles.j:setRadialAcceleration(0)
-        self.particles.k:setRadialAcceleration(0)
-        self.particles.l:setRadialAcceleration(0)
-
-        self.particles.h:setTangentialAcceleration(0)
-        self.particles.j:setTangentialAcceleration(0)
-        self.particles.k:setTangentialAcceleration(0)
-        self.particles.l:setTangentialAcceleration(0)
+    local microTime = love.timer.getMicroTime()
+    for _, lane in ipairs({"h", "j", "k", "l"}) do
+        if microTime > self.offTime[lane] then
+            self.particles[lane]:setSpread(0)
+            self.particles[lane]:setRadialAcceleration(0)
+            self.particles[lane]:setTangentialAcceleration(0)
+        end
     end
 
     self.particles.h:update(dt)
@@ -163,30 +160,31 @@ function Repo:draw(songTime)
     love.graphics.line(x.l, 0, x.l, constants.SCREEN.y)
 
     -- Lane targets.
-    local i = {
-        h = self.nextTarget.h,
-        j = self.nextTarget.j,
-        k = self.nextTarget.k,
-        l = self.nextTarget.l
-    }
-    while true do
-        if not self.tracks.j[i.j] then
-            break
+    for _, lane in ipairs({"h", "j", "k", "l"}) do
+        local i = self.nextTarget[lane]
+        while true do
+            if not self.tracks[lane][i] then
+                break
+            end
+
+            local deltaT = self.tracks[lane][i] - songTime
+            local distance = self.TARGET_SPEED * deltaT
+
+            local y = self.targetY - distance
+
+            if y < -50 then
+                break
+            elseif y > self.targetY then
+                self:ping(lane)
+                self.nextTarget[lane] = self.nextTarget[lane] + 1
+            else
+                local color = self:laneColor(lane)
+                love.graphics.setColor(color.r, color.g, color.b)
+                love.graphics.circle("fill", x[lane], y, 15, 20)
+            end
+
+            i = i + 1
         end
-
-        local deltaT = self.tracks.j[i.j] - songTime
-        local distance = self.TARGET_SPEED * deltaT
-
-        local y = self.targetY - distance
-
-        if y < -50 then
-            break
-        end
-
-        love.graphics.setColor(0, 255, 0)
-        love.graphics.circle("fill", x.j, y, 15, 20)
-
-        i.j = i.j + 1
     end
 
     -- Lane particles.
@@ -267,29 +265,6 @@ function Repo:draw(songTime)
 end
 
 function Repo:beat(songTime)
-    local spread = math.pi / 2
-    local radialAccelMin = 100
-    local radialAccelMax = 300
-    local tangentialAccelMin = -200
-    local tangentialAccelMax = 200
-
-    self.particles.h:setSpread(spread)
-    self.particles.j:setSpread(spread)
-    self.particles.k:setSpread(spread)
-    self.particles.l:setSpread(spread)
-
-    self.particles.h:setRadialAcceleration(radialAccelMin, radialAccelMax)
-    self.particles.j:setRadialAcceleration(radialAccelMin, radialAccelMax)
-    self.particles.k:setRadialAcceleration(radialAccelMin, radialAccelMax)
-    self.particles.l:setRadialAcceleration(radialAccelMin, radialAccelMax)
-
-    self.particles.h:setTangentialAcceleration(tangentialAccelMin, tangentialAccelMax)
-    self.particles.j:setTangentialAcceleration(tangentialAccelMin, tangentialAccelMax)
-    self.particles.k:setTangentialAcceleration(tangentialAccelMin, tangentialAccelMax)
-    self.particles.l:setTangentialAcceleration(tangentialAccelMin, tangentialAccelMax)
-
-    self.offTime = love.timer.getMicroTime() + self.SPEW_TIME
-
     self.wubWubFactor.value = self.WUB_WUB_MAGNITUDE
     Timer.tween(self.WUB_WUB_TIME, self.wubWubFactor, {value = 1.0}, "bounce")
 end
@@ -344,6 +319,28 @@ function Repo:targetX(which, spacing, radius)
     end
 
     return constants.SCREEN.x / 2
+end
+
+function Repo:laneColor(lane)
+    if lane == "h" then
+        return {r = 240, g = 0, b = 0}
+    elseif lane == "j" then
+        return {r = 0, g = 240, b = 0}
+    elseif lane == "k" then 
+        return {r = 0, g = 0, b = 240}
+    elseif lane == "l" then
+        return {r = 240, g = 240, b = 0}
+    end
+
+    return {r = 255, g = 255, b = 255}
+end
+
+function Repo:ping(lane)
+    self.particles[lane]:setSpread(2 * math.pi)
+    self.particles[lane]:setRadialAcceleration(50, 500)
+    self.particles[lane]:setTangentialAcceleration(-500, 500)
+
+    self.offTime[lane] = love.timer.getMicroTime() + self.SPEW_TIME
 end
 
 return Repo

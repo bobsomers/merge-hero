@@ -26,14 +26,12 @@ function play:enter(previous)
     self.lastBeat = #self.beats
     self.nextEighth = 1
     self.lastEighth = #self.eighths
-    self.nextSixteeth = 1
-    self.lastSixteenth = #self.sixteenths
     
     self.songStartTime = 0
 
     self.sourceKey = false
 
-    self.repo:activate("h", true)
+    self.repo:activate("j", true)
 end
 
 function play:update(dt)
@@ -62,16 +60,6 @@ function play:update(dt)
 
         if self.nextEighth < self.lastEighth then
             self.nextEighth = self.nextEighth + 1
-        end
-    end
-
-    if songTime >= self.sixteenths[self.nextSixteeth] then
-        local which = ((self.nextSixteeth - 1) % 4) + 1
-
-        -- TODO
-
-        if self.nextSixteeth < self.lastSixteenth then
-            self.nextSixteeth = self.nextSixteeth + 1
         end
     end
 
@@ -115,8 +103,6 @@ end
 function play:interpolateBeats()
     self.eighths = {}
     self.nextEighth = 1
-    self.sixteenths = {}
-    self.nextSixteeth = 1
 
     for i, beatTime in ipairs(self.beats) do
         if i < self.lastBeat then
@@ -125,12 +111,6 @@ function play:interpolateBeats()
             self.eighths[self.nextEighth] = beatTime
             self.eighths[self.nextEighth + 1] = beatTime + (difference / 2)
             self.nextEighth = self.nextEighth + 2
-
-            self.sixteenths[self.nextSixteeth] = beatTime
-            self.sixteenths[self.nextSixteeth + 1] = beatTime + (difference / 4)
-            self.sixteenths[self.nextSixteeth + 2] = beatTime + (difference / 2)
-            self.sixteenths[self.nextSixteeth + 3] = beatTime + (3 * difference / 4)
-            self.nextSixteeth = self.nextSixteeth + 4
         end
     end
 end
