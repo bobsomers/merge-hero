@@ -2,10 +2,12 @@ local Class = require "hump.class"
 local Vector = require "hump.vector"
 local Timer = require "hump.timer"
 local constants = require "constants"
-local tracks = require "tracks"
+local commits = require "data.commits"
+local creeps = require "data.creeps"
 
 local Repo = Class {
     font = love.graphics.newFont("fonts/pricedown.ttf", 48),
+    commitFont = love.graphics.newFont("fonts/pricedown.ttf", 30),
 
     active = {
         h = false,
@@ -27,9 +29,16 @@ local Repo = Class {
     WUB_WUB_TIME = 0.1,
     WUB_WUB_MAGNITUDE = 1.5,
 
-    TARGET_SPEED = 200,
-    tracks = tracks,
-    nextTarget = {
+    COMMIT_CREEP_SPEED = 200,
+    commits = commits,
+    creeps = creeps,
+    nextCommit = {
+        h = 1,
+        j = 1,
+        k = 1,
+        l = 1
+    },
+    nextCreep = {
         h = 1,
         j = 1,
         k = 1,
@@ -187,28 +196,60 @@ function Repo:draw(songTime)
     love.graphics.setColor(25, 25, 240)
     love.graphics.line(x.k, 0, x.k, constants.SCREEN.y)
 
-    -- Lane targets.
+    -- Lane commits and creeps.
+    love.graphics.setFont(self.commitFont)
     for _, lane in ipairs({"h", "j", "k", "l"}) do
-        local i = self.nextTarget[lane]
+        -- Commits.
+        local i = self.nextCommit[lane]
         while true do
-            if not self.tracks[lane][i] then
+            if not self.commits[lane][i] then
                 break
             end
 
-            local deltaT = self.tracks[lane][i] - songTime
-            local distance = self.TARGET_SPEED * deltaT
+            local deltaT = self.commits[lane][i] - songTime
+            local distance = self.COMMIT_CREEP_SPEED * deltaT
 
             local y = self.targetY - distance
 
             if y < -50 then
                 break
-            elseif y > self.targetY then
+            elseif y > self.targetY and self.active[lane] then
                 self:ping(lane)
-                self.nextTarget[lane] = self.nextTarget[lane] + 1
+                self.nextCommit[lane] = self.nextCommit[lane] + 1
             else
                 local color = self:laneColor(lane)
                 love.graphics.setColor(color.r, color.g, color.b)
                 love.graphics.circle("fill", x[lane], y, 15, 20)
+                love.graphics.setColor(color.r * 0.3, color.g * 0.3, color.b * 0.3)
+                love.graphics.print("c", x[lane] - 8, y - 20)
+            end
+
+            i = i + 1
+        end
+
+        -- Creeps.
+        i = self.nextCreep[lane]
+        while true do
+            if not self.creeps[lane][i] then
+                break
+            end
+
+            local deltaT = self.creeps[lane][i] - songTime
+            local distance = self.COMMIT_CREEP_SPEED * deltaT
+
+            local y = self.targetY - distance
+
+            if y < -50 then
+                break
+            elseif y > self.targetY and self.active[lane] then
+                self:ping(lane)
+                self.nextCreep[lane] = self.nextCreep[lane] + 1
+            else
+                local color = self:laneColor(lane)
+                love.graphics.setColor(255, 255, 255)
+                love.graphics.rectangle("fill", x[lane] - 15, y - 15, 30, 30)
+                love.graphics.setColor(color.r * 0.3, color.g * 0.3, color.b * 0.3)
+                love.graphics.print("f", x[lane] - 6, y - 20)
             end
 
             i = i + 1

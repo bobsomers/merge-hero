@@ -1,13 +1,13 @@
 local Gamestate = require "hump.gamestate"
 
-local recbeats = {}
+local record = {}
 
-function recbeats:init()
+function record:init()
     love.graphics.setBackgroundColor(65, 25, 25)
     self.soundtrack = love.audio.newSource("level1.mp3", "static")
 end
 
-function recbeats:enter(previous)
+function record:enter(previous)
     self.countdown = 10.0
     self.beats = {}
     self.nextbeat = 1
@@ -16,7 +16,7 @@ function recbeats:enter(previous)
     self.songStartTime = 0
 end
 
-function recbeats:update(dt)
+function record:update(dt)
     if self.countdown > 0 then
         self.countdown = self.countdown - dt
         if self.countdown <= 0 then
@@ -26,7 +26,7 @@ function recbeats:update(dt)
     end
 end
 
-function recbeats:draw()
+function record:draw()
     if self.done then
         love.graphics.print("Recording finished.", 50, 100)
     elseif self.countdown > 0 then
@@ -36,7 +36,7 @@ function recbeats:draw()
     end
 end
 
-function recbeats:keypressed(key)
+function record:keypressed(key)
     if key == " " then
         self.beats[self.nextbeat] = love.timer.getMicroTime() - self.songStartTime
         self.nextbeat = self.nextbeat + 1
@@ -56,9 +56,9 @@ function recbeats:keypressed(key)
     end
 end
 
-function recbeats:savetrack()
+function record:savetrack()
     local data = [[
-local beats = {
+local track = {
 ]]
 
     for _, beattime in ipairs(self.beats) do
@@ -68,37 +68,10 @@ local beats = {
     data = data .. [[
 }
 
-return beats
+return track
 ]]
 
-    return love.filesystem.write("beats.lua", data)
+    return love.filesystem.write("track.lua", data)
 end
 
---[[
-function recbeats:interpolate()
-    print("Interpolating beats.")
-
-    self.eighths = {}
-    self.nexteighth = 1
-    self.sixteenths = {}
-    self.nextsixteeth = 1
-
-    for i, beattime in ipairs(self.beats) do
-        if i < self.nextbeat - 1 then
-            local difference = self.beats[i + 1] - beattime
-
-            self.eighths[self.nexteighth] = beattime
-            self.eighths[self.nexteighth + 1] = beattime + (difference / 2)
-            self.nexteighth = self.nexteighth + 2
-
-            self.sixteenths[self.nextsixteeth] = beattime
-            self.sixteenths[self.nextsixteeth + 1] = beattime + (difference / 4)
-            self.sixteenths[self.nextsixteeth + 2] = beattime + (difference / 2)
-            self.sixteenths[self.nextsixteeth + 3] = beattime + (3 * difference / 4)
-            self.nextsixteeth = self.nextsixteeth + 4
-        end
-    end
-end
---]]
-
-return recbeats
+return record

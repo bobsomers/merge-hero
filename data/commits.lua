@@ -1,4 +1,4 @@
-local tracks = {
+local commits = {
     h = {
     },
 
@@ -46,4 +46,4 @@ local tracks = {
     }
 }
 
-return tracks
+return commits

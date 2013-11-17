@@ -2,8 +2,7 @@ local Gamestate = require "hump.gamestate"
 local Timer = require "hump.timer"
 
 local play = require "states.play"
-local recbeats = require "states.recbeats"
-local playbeats = require "states.playbeats"
+local record = require "states.record"
 
 function love.load()
     math.randomseed(os.time())

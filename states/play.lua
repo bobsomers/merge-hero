@@ -2,7 +2,7 @@ local Gamestate = require "hump.gamestate"
 local Repo = require "entities.repo"
 local Background = require "entities.background"
 local Insultomatic = require "entities.insultomatic"
-local beats = require "beats"
+local beats = require "data.beats"
 
 local play = {}
 
