@@ -1,14 +1,14 @@
 local Gamestate = require "hump.gamestate"
 local Timer = require "hump.timer"
 
-local play = require "states.play"
+local title = require "states.title"
 local record = require "states.record"
 
 function love.load()
     math.randomseed(os.time())
 
     Gamestate.registerEvents()
-    Gamestate.switch(play)
+    Gamestate.switch(title)
 end
 
 function love.update(dt)
