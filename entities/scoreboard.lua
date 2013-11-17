@@ -19,6 +19,8 @@ local Scoreboard = Class {
 
     score = 0,
 
+    inTheRed = false,
+
     color = {r = 255, g = 255, b = 255}
 }
 
@@ -60,9 +62,15 @@ end
 
 function Scoreboard:remove(amount)
     self.score = self.score - amount
-    self.color.g = 50
-    self.color.b = 50
-    Timer.tween(0.5, self.color, {g = 255, b = 255}, "cubic")
+
+    if not self.inTheRed then
+        self.inTheRed = true
+        self.color.g = 50
+        self.color.b = 50
+        Timer.tween(0.5, self.color, {g = 255, b = 255}, "cubic", function()
+            self.inTheRed = false
+        end)
+    end
 end
 
 return Scoreboard

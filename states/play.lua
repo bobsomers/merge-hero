@@ -4,6 +4,7 @@ local Background = require "entities.background"
 local Scoreboard = require "entities.scoreboard"
 local HelpText = require "entities.helptext"
 local OhSnap = require "entities.ohsnap"
+local Grade = require "entities.grade"
 local beats = require "data.beats"
 
 local play = {}
@@ -20,6 +21,7 @@ function play:init()
     self.repo = Repo(self.scoreboard)
     self.helptext = HelpText()
     self.ohSnap = OhSnap()
+    self.grade = Grade(self.scoreboard)
 
     self.sourceKey = false
 
@@ -50,23 +52,27 @@ function play:update(dt)
 
     local songTime = love.timer.getMicroTime() - self.songStartTime
 
-    if songTime >= self.beats[self.nextBeat] then
+    if self.nextBeat and songTime >= self.beats[self.nextBeat] then
         self.background:beat(songTime)
         self.repo:beat(songTime)
         self.scoreboard:beat(songTime)
 
         if self.nextBeat < self.lastBeat then
             self.nextBeat = self.nextBeat + 1
+        elseif self.nextBeat == self.lastBeat then
+            self.nextBeat = false
         end
     end
 
-    if songTime >= self.eighths[self.nextEighth] then
+    if self.nextEighth and songTime >= self.eighths[self.nextEighth] then
         local which = ((self.nextEighth - 1) % 2) + 1
 
         self.background:halfBeat(songTime)
 
         if self.nextEighth < self.lastEighth then
             self.nextEighth = self.nextEighth + 1
+        elseif self.nextEighth == self.lastEighth then
+            self.nextEighth = false
         end
     end
 
@@ -77,6 +83,7 @@ function play:update(dt)
     self.scoreboard:update(dt)
     self.helptext:update(dt)
     self.ohSnap:update(dt)
+    self.grade:update(dt)
 end
 
 function play:draw()
@@ -87,6 +94,7 @@ function play:draw()
     self.helptext:draw(songTime)
     self.repo:draw(songTime)
     self.scoreboard:draw()
+    self.grade:draw(songTime)
 end
 
 function play:keypressed(key)
