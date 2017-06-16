@@ -56,7 +56,7 @@ function title:draw()
     love.graphics.draw(self.branchImage, 180, 430)
     love.graphics.draw(self.mergeImage, 180, 620)
 
-    local alpha = 255 * (math.sin(2 * math.pi * 0.75 * love.timer.getMicroTime()) + 1) / 2
+    local alpha = 255 * (math.sin(2 * math.pi * 0.75 * love.timer.getTime()) + 1) / 2
     love.graphics.setColor(255, 255, 255, alpha)
     love.graphics.print("enter to start >>", 320, 750)
 end

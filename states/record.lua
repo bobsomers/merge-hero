@@ -20,7 +20,7 @@ function record:update(dt)
     if self.countdown > 0 then
         self.countdown = self.countdown - dt
         if self.countdown <= 0 then
-            self.songStartTime = love.timer.getMicroTime()
+            self.songStartTime = love.timer.getTime()
             love.audio.play(self.soundtrack)
         end
     end
@@ -32,13 +32,13 @@ function record:draw()
     elseif self.countdown > 0 then
         love.graphics.print(string.format("Recording beat track in %.2f...", self.countdown), 50, 100)
     else
-        love.graphics.print(string.format("Recording beat track at %.2f...", love.timer.getMicroTime() - self.songStartTime), 50, 100)
+        love.graphics.print(string.format("Recording beat track at %.2f...", love.timer.getTime() - self.songStartTime), 50, 100)
     end
 end
 
 function record:keypressed(key)
     if key == " " then
-        self.beats[self.nextbeat] = love.timer.getMicroTime() - self.songStartTime
+        self.beats[self.nextbeat] = love.timer.getTime() - self.songStartTime
         self.nextbeat = self.nextbeat + 1
         print("BEAT")
     elseif key == "escape" then

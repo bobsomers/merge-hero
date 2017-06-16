@@ -45,12 +45,12 @@ end
 function play:update(dt)
     if not self.playing then
         self.playing = true
-        self.songStartTime = love.timer.getMicroTime()
+        self.songStartTime = love.timer.getTime()
         love.audio.play(self.soundtrack)
         return
     end
 
-    local songTime = love.timer.getMicroTime() - self.songStartTime
+    local songTime = love.timer.getTime() - self.songStartTime
 
     if self.nextBeat and songTime >= self.beats[self.nextBeat] then
         self.background:beat(songTime)
@@ -87,7 +87,7 @@ function play:update(dt)
 end
 
 function play:draw()
-    local songTime = love.timer.getMicroTime() - self.songStartTime
+    local songTime = love.timer.getTime() - self.songStartTime
 
     self.background:draw()
     self.ohSnap:draw(songTime)

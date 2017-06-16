@@ -21,15 +21,15 @@ local Background = Class {
         self.particles:setSpeed(50, 400)
         self.particles:setSizes(0.3, 0.8)
         self.particles:setSizeVariation(1.0)
-        self.particles:setLifetime(-1)
-        self.particles:setParticleLife(2)
+        self.particles:setEmitterLifetime(-1)
+        self.particles:setParticleLifetime(2)
         self.particles:setRadialAcceleration(-200, 200)
         self.particles:setTangentialAcceleration(-400, 400)
     end
 }
 
 function Background:update(dt)
-    if love.timer.getMicroTime() > self.offTime then
+    if love.timer.getTime() > self.offTime then
         self.particles:stop()
     end
 
@@ -41,13 +41,10 @@ function Background:draw()
                                      self.bgColor.g,
                                      self.bgColor.b)
 
-    local color_mode = love.graphics.getColorMode()
-    local blend_mode = love.graphics.getBlendMode()
-    love.graphics.setColorMode("modulate")
-    love.graphics.setBlendMode("additive")
+    local blend_mode, alpha_mode = love.graphics.getBlendMode()
+    love.graphics.setBlendMode("add", "alphamultiply")
     love.graphics.draw(self.particles, 0, 0)
-    love.graphics.setColorMode(color_mode)
-    love.graphics.setBlendMode(blend_mode)
+    love.graphics.setBlendMode(blend_mode, alpha_mode)
 end
 
 function Background:beat(songTime)
@@ -91,7 +88,7 @@ function Background:beat(songTime)
 
     -- Do the thing.
     self.particles:start()
-    self.offTime = love.timer.getMicroTime() + self.SPEW_TIME
+    self.offTime = love.timer.getTime() + self.SPEW_TIME
 end
 
 function Background:halfBeat(songTime)
@@ -106,7 +103,7 @@ function Background:halfBeat(songTime)
 
     -- Do the thing.
     self.particles:start()
-    self.offTime = love.timer.getMicroTime() + self.SPEW_TIME
+    self.offTime = love.timer.getTime() + self.SPEW_TIME
 end
 
 return Background
