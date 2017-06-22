@@ -98,8 +98,8 @@ local Repo = Class {
         self.particles.h:setSizes(sizeMin, sizeMax)
         self.particles.h:setSizeVariation(sizeVariation)
         self.particles.h:setColors(240, 25, 25, 255, 240, 25, 25, 0)
-        self.particles.h:setLifetime(lifetime)
-        self.particles.h:setParticleLife(particleLife)
+        self.particles.h:setEmitterLifetime(lifetime)
+        self.particles.h:setParticleLifetime(particleLife)
 
         self.particles.j = love.graphics.newParticleSystem(self.image, particleBuffer)
         self.particles.j:setEmissionRate(emissionRate)
@@ -108,8 +108,8 @@ local Repo = Class {
         self.particles.j:setSizes(sizeMin, sizeMax)
         self.particles.j:setSizeVariation(sizeVariation)
         self.particles.j:setColors(25, 240, 25, 255, 25, 240, 25, 0)
-        self.particles.j:setLifetime(lifetime)
-        self.particles.j:setParticleLife(particleLife)
+        self.particles.j:setEmitterLifetime(lifetime)
+        self.particles.j:setParticleLifetime(particleLife)
 
         self.particles.k = love.graphics.newParticleSystem(self.image, particleBuffer)
         self.particles.k:setEmissionRate(emissionRate)
@@ -118,8 +118,8 @@ local Repo = Class {
         self.particles.k:setSizes(sizeMin, sizeMax)
         self.particles.k:setSizeVariation(sizeVariation)
         self.particles.k:setColors(25, 25, 240, 255, 25, 25, 240, 0)
-        self.particles.k:setLifetime(lifetime)
-        self.particles.k:setParticleLife(particleLife)
+        self.particles.k:setEmitterLifetime(lifetime)
+        self.particles.k:setParticleLifetime(particleLife)
 
         self.particles.l = love.graphics.newParticleSystem(self.image, particleBuffer)
         self.particles.l:setEmissionRate(emissionRate)
@@ -128,8 +128,8 @@ local Repo = Class {
         self.particles.l:setSizes(sizeMin, sizeMax)
         self.particles.l:setSizeVariation(sizeVariation)
         self.particles.l:setColors(240, 240, 25, 255, 240, 240, 25, 0)
-        self.particles.l:setLifetime(lifetime)
-        self.particles.l:setParticleLife(particleLife)
+        self.particles.l:setEmitterLifetime(lifetime)
+        self.particles.l:setParticleLifetime(particleLife)
 
         self.particles.h:stop()
         self.particles.j:stop()
@@ -139,7 +139,7 @@ local Repo = Class {
 }
 
 function Repo:update(dt, songTime)
-    local microTime = love.timer.getMicroTime()
+    local microTime = love.timer.getTime()
     for _, lane in ipairs({"h", "j", "k", "l"}) do
         if microTime > self.offTime[lane] then
             self.particles[lane]:setSpread(0)
@@ -267,10 +267,9 @@ function Repo:draw(songTime)
     end
 
     -- Lane particles.
-    local color_mode = love.graphics.getColorMode()
-    local blend_mode = love.graphics.getBlendMode()
-    love.graphics.setColorMode("modulate")
-    love.graphics.setBlendMode("additive")
+    local blend_mode, alpha_mode = love.graphics.getBlendMode()
+    love.graphics.setBlendMode("add", "alphamultiply")
+    love.graphics.setColor(255, 255, 255)
 
     self.particles.h:setPosition(self.emissionPos.h.x, self.emissionPos.h.y)
     love.graphics.draw(self.particles.h, 0, 0)
@@ -284,8 +283,7 @@ function Repo:draw(songTime)
     self.particles.l:setPosition(self.emissionPos.l.x, self.emissionPos.l.y)
     love.graphics.draw(self.particles.l, 0, 0)
 
-    love.graphics.setColorMode(color_mode)
-    love.graphics.setBlendMode(blend_mode)
+    love.graphics.setBlendMode(blend_mode, alpha_mode)
 
     -- Lane goals.
     love.graphics.push()
@@ -293,43 +291,49 @@ function Repo:draw(songTime)
 
     if self.drawOutsideGoals then
         love.graphics.setColor(240, 25, 25)
-        love.graphics.setInvertedStencil(function()
+        love.graphics.stencil(function()
             love.graphics.circle("fill", x.h, self.scaledTargetY, stencilRadius, 30)
-        end)
+        end, "replace", 1)
+        love.graphics.setStencilTest("equal", 0)
         love.graphics.circle("fill", x.h, self.scaledTargetY, radius, 30)
 
         love.graphics.setColor(240, 240, 25)
-        love.graphics.setInvertedStencil(function()
+        love.graphics.stencil(function()
             love.graphics.circle("fill", x.l, self.scaledTargetY, stencilRadius, 30)
-        end)
+        end, "replace", 1)
+        love.graphics.setStencilTest("equal", 0)
         love.graphics.circle("fill", x.l, self.scaledTargetY, radius, 30)
     elseif self.introducedOutsideGoals then
         love.graphics.setColor(240, 25, 25)
-        love.graphics.setInvertedStencil(function()
+        love.graphics.stencil(function()
             love.graphics.circle("fill", x.h - self.outsideLanePos.x, self.scaledTargetY, stencilRadius, 30)
-        end)
+        end, "replace", 1)
+        love.graphics.setStencilTest("equal", 0)
         love.graphics.circle("fill", x.h - self.outsideLanePos.x, self.scaledTargetY, radius, 30)
 
         love.graphics.setColor(240, 240, 25)
-        love.graphics.setInvertedStencil(function()
+        love.graphics.stencil(function()
             love.graphics.circle("fill", x.l + self.outsideLanePos.x, self.scaledTargetY, stencilRadius, 30)
-        end)
+        end, "replace", 1)
+        love.graphics.setStencilTest("equal", 0)
         love.graphics.circle("fill", x.l + self.outsideLanePos.x, self.scaledTargetY, radius, 30)
     end
 
     love.graphics.setColor(25, 240, 25)
-    love.graphics.setInvertedStencil(function()
+    love.graphics.stencil(function()
         love.graphics.circle("fill", x.j, self.scaledTargetY, stencilRadius, 30)
-    end)
+    end, "replace", 1)
+    love.graphics.setStencilTest("equal", 0)
     love.graphics.circle("fill", x.j, self.scaledTargetY, radius, 30)
 
     love.graphics.setColor(25, 25, 240)
-    love.graphics.setInvertedStencil(function()
+    love.graphics.stencil(function()
         love.graphics.circle("fill", x.k, self.scaledTargetY, stencilRadius, 30)
-    end)
+    end, "replace", 1)
+    love.graphics.setStencilTest("equal", 0)
     love.graphics.circle("fill", x.k, self.scaledTargetY, radius, 30)
 
-    love.graphics.setStencil()
+    love.graphics.setStencilTest()
 
     love.graphics.pop()
 
@@ -431,7 +435,7 @@ function Repo:laneColor(lane)
         return {r = 240, g = 0, b = 0}
     elseif lane == "j" then
         return {r = 0, g = 240, b = 0}
-    elseif lane == "k" then 
+    elseif lane == "k" then
         return {r = 0, g = 0, b = 240}
     elseif lane == "l" then
         return {r = 240, g = 240, b = 0}
@@ -445,7 +449,7 @@ function Repo:ping(lane)
     self.particles[lane]:setRadialAcceleration(50, 500)
     self.particles[lane]:setTangentialAcceleration(-500, 500)
 
-    self.offTime[lane] = love.timer.getMicroTime() + self.SPEW_TIME
+    self.offTime[lane] = love.timer.getTime() + self.SPEW_TIME
 end
 
 return Repo
