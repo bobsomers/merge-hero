@@ -34,7 +34,7 @@ function play:enter(previous)
     self.lastBeat = #self.beats
     self.nextEighth = 1
     self.lastEighth = #self.eighths
-    
+
     self.songStartTime = 0
 
     self.sourceKey = false

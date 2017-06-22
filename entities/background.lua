@@ -43,6 +43,7 @@ function Background:draw()
 
     local blend_mode, alpha_mode = love.graphics.getBlendMode()
     love.graphics.setBlendMode("add", "alphamultiply")
+    love.graphics.setColor(255, 255, 255)
     love.graphics.draw(self.particles, 0, 0)
     love.graphics.setBlendMode(blend_mode, alpha_mode)
 end

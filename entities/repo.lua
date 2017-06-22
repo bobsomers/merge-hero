@@ -269,6 +269,7 @@ function Repo:draw(songTime)
     -- Lane particles.
     local blend_mode, alpha_mode = love.graphics.getBlendMode()
     love.graphics.setBlendMode("add", "alphamultiply")
+    love.graphics.setColor(255, 255, 255)
 
     self.particles.h:setPosition(self.emissionPos.h.x, self.emissionPos.h.y)
     love.graphics.draw(self.particles.h, 0, 0)
